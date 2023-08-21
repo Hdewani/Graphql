@@ -7,6 +7,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -24,9 +25,60 @@ export type Scalars = {
   FilterSkip: { input: any; output: any; }
 };
 
+export type Author = {
+  __typename?: 'Author';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  verified: Scalars['Boolean']['output'];
+};
+
+export type Game = {
+  __typename?: 'Game';
+  id: Scalars['ID']['output'];
+  platform: Array<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
+  author?: Maybe<Author>;
+  authors?: Maybe<Array<Maybe<Author>>>;
+  game?: Maybe<Game>;
+  games?: Maybe<Array<Maybe<Game>>>;
   hello?: Maybe<Scalars['String']['output']>;
+  review?: Maybe<Reviews>;
+  reviews?: Maybe<Array<Maybe<Reviews>>>;
+  user?: Maybe<User>;
+};
+
+
+export type QueryAuthorArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGameArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryReviewArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type Reviews = {
+  __typename?: 'Reviews';
+  content: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  rating: Scalars['Int']['output'];
+};
+
+export type User = {
+  __typename?: 'User';
+  age?: Maybe<Scalars['Int']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  phone?: Maybe<Scalars['Int']['output']>;
 };
 
 export type AdditionalEntityFields = {
@@ -105,26 +157,38 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  Author: ResolverTypeWrapper<Author>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  String: ResolverTypeWrapper<Scalars['String']['output']>;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Date: ResolverTypeWrapper<Scalars['Date']['output']>;
   Email: ResolverTypeWrapper<Scalars['Email']['output']>;
   FilterLimit: ResolverTypeWrapper<Scalars['FilterLimit']['output']>;
   FilterSkip: ResolverTypeWrapper<Scalars['FilterSkip']['output']>;
+  Game: ResolverTypeWrapper<Game>;
   Query: ResolverTypeWrapper<{}>;
-  String: ResolverTypeWrapper<Scalars['String']['output']>;
+  Reviews: ResolverTypeWrapper<Reviews>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  User: ResolverTypeWrapper<User>;
   AdditionalEntityFields: AdditionalEntityFields;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  Author: Author;
+  ID: Scalars['ID']['output'];
+  String: Scalars['String']['output'];
+  Boolean: Scalars['Boolean']['output'];
   Date: Scalars['Date']['output'];
   Email: Scalars['Email']['output'];
   FilterLimit: Scalars['FilterLimit']['output'];
   FilterSkip: Scalars['FilterSkip']['output'];
+  Game: Game;
   Query: {};
-  String: Scalars['String']['output'];
+  Reviews: Reviews;
+  Int: Scalars['Int']['output'];
+  User: User;
   AdditionalEntityFields: AdditionalEntityFields;
-  Boolean: Scalars['Boolean']['output'];
 };
 
 export type AdminDirectiveArgs = { };
@@ -190,6 +254,13 @@ export type MapDirectiveArgs = {
 
 export type MapDirectiveResolver<Result, Parent, ContextType = any, Args = MapDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
+export type AuthorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Author'] = ResolversParentTypes['Author']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  verified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
@@ -206,16 +277,49 @@ export interface FilterSkipScalarConfig extends GraphQLScalarTypeConfig<Resolver
   name: 'FilterSkip';
 }
 
+export type GameResolvers<ContextType = any, ParentType extends ResolversParentTypes['Game'] = ResolversParentTypes['Game']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  platform?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  author?: Resolver<Maybe<ResolversTypes['Author']>, ParentType, ContextType, RequireFields<QueryAuthorArgs, 'id'>>;
+  authors?: Resolver<Maybe<Array<Maybe<ResolversTypes['Author']>>>, ParentType, ContextType>;
+  game?: Resolver<Maybe<ResolversTypes['Game']>, ParentType, ContextType, RequireFields<QueryGameArgs, 'id'>>;
+  games?: Resolver<Maybe<Array<Maybe<ResolversTypes['Game']>>>, ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  review?: Resolver<Maybe<ResolversTypes['Reviews']>, ParentType, ContextType, RequireFields<QueryReviewArgs, 'id'>>;
+  reviews?: Resolver<Maybe<Array<Maybe<ResolversTypes['Reviews']>>>, ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+};
+
+export type ReviewsResolvers<ContextType = any, ParentType extends ResolversParentTypes['Reviews'] = ResolversParentTypes['Reviews']> = {
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  rating?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  age?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  phone?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = any> = {
+  Author?: AuthorResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Email?: GraphQLScalarType;
   FilterLimit?: GraphQLScalarType;
   FilterSkip?: GraphQLScalarType;
+  Game?: GameResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Reviews?: ReviewsResolvers<ContextType>;
+  User?: UserResolvers<ContextType>;
 };
 
 export type DirectiveResolvers<ContextType = any> = {
